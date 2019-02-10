@@ -1,5 +1,8 @@
 /* process.h - isbadpid */
 
+// for scheduling groups
+#define SRTIME 0
+#define TSSCHED 1
 
 #define XTEST 1
 #define XDEBUG 0    /* set this to 0 when submitting */
@@ -24,6 +27,12 @@
 #ifndef NPROC
 #define	NPROC		8
 #endif		
+
+// number of process groups
+#ifndef NPROCG
+#define	NPROCG		2
+#endif		
+
 
 /* Process state constants */
 
@@ -71,6 +80,7 @@ struct procent {		/* Entry in the process table		*/
 	umsg32	prmsg;		/* Message sent to this process		*/
 	bool8	prhasmsg;	/* Nonzero iff msg is valid		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
+    int     grp;        // process group
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/
@@ -79,3 +89,4 @@ struct procent {		/* Entry in the process table		*/
 extern	struct	procent proctab[];
 extern	int32	prcount;	/* Currently active processes		*/
 extern	pid32	currpid;	/* Currently executing process		*/
+extern  pri16   procgprio[]; // priority of each scheduling group
