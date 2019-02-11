@@ -12,6 +12,9 @@ extern	void	arp_hton(struct arppacket *);
 // in file chgprio.c
 extern pri16 chgprio(int group, pri16 newprio);
 
+// in file getgprio.c
+extern syscall getgprio(int group);
+
 /* in file hello.c */
 extern syscall hello(void);
 

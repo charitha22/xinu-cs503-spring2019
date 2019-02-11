@@ -5,7 +5,7 @@
 #define TSSCHED 1
 
 #define XTEST 1
-#define XDEBUG 0    /* set this to 0 when submitting */
+#define XDEBUG 1    /* set this to 0 when submitting */
 
 /* For grading */
 #if XTEST
@@ -32,6 +32,10 @@
 #ifndef NPROCG
 #define	NPROCG		2
 #endif		
+
+
+// initial group priority
+#define GPRIO_DEFAULT   10
 
 
 /* Process state constants */

@@ -198,6 +198,7 @@ static	void	sysinit()
 	prptr->prstkbase = getstk(NULLSTK);
 	prptr->prstklen = NULLSTK;
 	prptr->prstkptr = 0;
+    prptr->grp = SRTIME;
 	currpid = NULLPROC;
 	
 	/* Initialize semaphores */
@@ -216,6 +217,10 @@ static	void	sysinit()
 	/* Create a ready list for processes */
 
 	readylist = newqueue();
+    
+    // initilaize the group priorities
+    chgprio(SRTIME, GPRIO_DEFAULT);
+    chgprio(TSSCHED, GPRIO_DEFAULT);
 
 	/* Initialize the real time clock */
 
