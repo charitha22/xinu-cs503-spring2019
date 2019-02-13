@@ -54,7 +54,8 @@ typedef	int32	status;		/* returned status value (OK/SYSERR)	*/
 #define	EOF	(-2)		/* End-of-file (usually from read)	*/
 #define	TIMEOUT	(-3)		/* system call timed out		*/
 
-extern	qid16	readylist;	/* global ID for list of ready processes*/
+extern	qid16	readylist_srtime;	/* global ID for list of srtime ready processes*/
+extern	qid16	readylist_tssched;	/* global ID for list of tssched ready processes*/
 
 #define	MINSTK	400		/* minimum stack size in bytes		*/
 

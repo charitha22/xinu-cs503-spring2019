@@ -199,6 +199,9 @@ static	void	sysinit()
 	prptr->prstklen = NULLSTK;
 	prptr->prstkptr = 0;
     prptr->grp = SRTIME;
+    prptr->curr_burst = 0.0;
+    prptr->exp_burst = 0.0;
+    prptr->next_exp_burst = 0.0;
 	currpid = NULLPROC;
 	
 	/* Initialize semaphores */
@@ -216,7 +219,8 @@ static	void	sysinit()
 
 	/* Create a ready list for processes */
 
-	readylist = newqueue();
+	readylist_srtime = newqueue();
+	readylist_tssched = newqueue();
     
     // initilaize the group priorities
     chgprio(SRTIME, GPRIO_DEFAULT);

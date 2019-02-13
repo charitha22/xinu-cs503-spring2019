@@ -10,10 +10,10 @@ extern	void	arp_ntoh(struct arppacket *);
 extern	void	arp_hton(struct arppacket *);
 
 // in file chgprio.c
-extern pri16 chgprio(int group, pri16 newprio);
+extern pri16 chgprio(int16 group, pri16 newprio);
 
 // in file getgprio.c
-extern syscall getgprio(int group);
+extern syscall getgprio(int16 group);
 
 /* in file hello.c */
 extern syscall hello(void);
@@ -46,7 +46,7 @@ extern	syscall	close(did32);
 extern	syscall	control(did32, int32, int32, int32);
 
 /* in file create.c */
-extern	pid32	create(void *, uint32, int group, pri16, char *, uint32, ...);
+extern	pid32	create(void *, uint32, int16, pri16, char *, uint32, ...);
 
 /* in file ctxsw.S */
 extern	void	ctxsw(void *, void *);
@@ -455,6 +455,7 @@ extern	umsg32	recvtime(int32);
 /* in file resched.c */
 extern	void	resched(void);
 extern	status	resched_cntl(int32);
+extern  int16  get_shedinfo(void);
 
 /* in file intutils.S */
 extern	void	restore(intmask);

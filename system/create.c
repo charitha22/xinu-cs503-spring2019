@@ -11,7 +11,7 @@ local	int newpid();
 pid32	create(
 	  void		*funcaddr,	/* Address of the function	*/
 	  uint32	ssize,		/* Stack size in bytes		*/
-      int group,            // scheduling group. TSSCHED, SRTIME
+      int16     group,      // scheduling group. TSSCHED, SRTIME
 	  pri16		priority,	/* Process priority > 0		*/
 	  char		*name,		/* Name (for debugging)		*/
 	  uint32	nargs,		/* Number of args that follow	*/
@@ -53,6 +53,10 @@ pid32	create(
    
     // set the process group of new process
     prptr->grp = group;
+    // set the burst time variables
+    prptr->curr_burst = 0;
+    prptr->exp_burst = 0;
+    prptr->next_exp_burst = 0;
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;

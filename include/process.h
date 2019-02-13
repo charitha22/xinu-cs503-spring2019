@@ -66,6 +66,9 @@
 			  ((pid32)(x) >= NPROC) || \
 			  (proctab[(x)].prstate == PR_FREE))
 
+/* inline code to check bad group ID */
+#define isbadgroup(x) (!(x == SRTIME || x == TSSCHED))
+
 /* Number of device descriptors a process can have open */
 
 #define NDESC		5	/* must be odd to make procent 4N bytes	*/
@@ -84,7 +87,11 @@ struct procent {		/* Entry in the process table		*/
 	umsg32	prmsg;		/* Message sent to this process		*/
 	bool8	prhasmsg;	/* Nonzero iff msg is valid		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
-    int     grp;        // process group
+    int16   grp;        // process group
+
+    int32   curr_burst; // current cpu burst of the proces
+    int32   exp_burst;  // current expected burst
+    int32   next_exp_burst;  // next expected burst
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

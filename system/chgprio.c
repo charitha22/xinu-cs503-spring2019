@@ -1,13 +1,8 @@
 #include <xinu.h>
 
-// function to check valid group 
-// numbers
-bool8 isbadgroup(int group){
-    return !(group == SRTIME || group == TSSCHED);
-}
 
 
-pri16 chgprio(int group, pri16 newprio){
+pri16 chgprio(int16 group, pri16 newprio){
     intmask mask;
     pri16 oldprio;
 

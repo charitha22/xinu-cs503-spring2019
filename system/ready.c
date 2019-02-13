@@ -2,7 +2,8 @@
 
 #include <xinu.h>
 
-qid16	readylist;			/* Index of ready list		*/
+qid16	readylist_srtime;			/* Index of srtime ready list		*/
+qid16	readylist_tssched;			/* Index of tssched ready list		*/
 
 /*------------------------------------------------------------------------
  *  ready  -  Make a process eligible for CPU service
@@ -22,7 +23,10 @@ status	ready(
 
 	prptr = &proctab[pid];
 	prptr->prstate = PR_READY;
-	insert(pid, readylist, prptr->prprio);
+    // check the scheduling group and insert appropriately
+    if(prptr->grp == SRTIME) insert(pid, readylist_srtime, prptr->prprio);
+    else insert(pid, readylist_tssched, prptr->prprio);
+
 	resched();
 
 	return OK;

@@ -1,7 +1,7 @@
 #include <xinu.h>
 
 syscall getgprio(
-    int group // process group
+    int16 group // process group
     )
 {
     intmask mask;
