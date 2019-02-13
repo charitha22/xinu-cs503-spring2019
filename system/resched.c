@@ -4,17 +4,11 @@
 
 struct	defer	Defer;
 
-// struct to store the information required for scheduling
-struct shedinfo {
-    pri16 srtime_count; //number of srtime processes
-    pri16 tssched_count; // number of tssched processes
-    int gwin; // winning group
-    
-};
 
-struct shedinfo get_shedinfo(){
-    struct shedinfo info = {0,0,0};
+int get_shedinfo(){
     qid16 curr, last;
+    int16 srtime_cnt = 0, tssched_cnt = 0;
+    int gwin;
 
     // set the priority of current process's group to default
     chgprio(proctab[currpid].grp , GPRIO_DEFAULT);
@@ -26,8 +20,8 @@ struct shedinfo get_shedinfo(){
 
     do{
         if(curr != NULLPROC && curr != currpid){
-            if(proctab[curr].grp == SRTIME) info.srtime_count++;
-            else if(proctab[curr].grp == TSSCHED) info.tssched_count++;
+            if(proctab[curr].grp == SRTIME) srtime_cnt++;
+            else if(proctab[curr].grp == TSSCHED) tssched_cnt++;
         }
         curr = queuetab[curr].qnext;
     } while(curr != last);
@@ -36,14 +30,14 @@ struct shedinfo get_shedinfo(){
     /*XDEBUG_KPRINTF("no of srtime = %d\nno of tssched =  %d\n", */
                     /*info.srtime_count, info.tssched_count);*/
     // set new group priorities
-    chgprio(SRTIME, (pri16)getgprio(SRTIME) + info.srtime_count);
-    chgprio(TSSCHED, (pri16)getgprio(TSSCHED) + info.tssched_count);
+    chgprio(SRTIME, (pri16)getgprio(SRTIME) + srtime_cnt);
+    chgprio(TSSCHED, (pri16)getgprio(TSSCHED) + tssched_cnt);
 
     // select winner
-    if(getgprio(SRTIME) >= getgprio(TSSCHED)) info.gwin = SRTIME;
-    else info.gwin = TSSCHED;
+    if(getgprio(SRTIME) >= getgprio(TSSCHED)) gwin = SRTIME;
+    else gwin = TSSCHED;
 
-    return info;
+    return gwin;
 }
 
 
@@ -55,6 +49,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 {
 	struct procent *ptold;	/* Ptr to table entry for old process	*/
 	struct procent *ptnew;	/* Ptr to table entry for new process	*/
+    int     win_grp;
 
 	/* If rescheduling is deferred, record attempt and return */
 
@@ -68,9 +63,9 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	ptold = &proctab[currpid];
 
 	if (ptold->prstate == PR_CURR) {  /* Process remains eligible */
-		if (ptold->prprio > firstkey(readylist)) {
-			return;
-		}
+		/*if (ptold->prprio > firstkey(readylist)) {*/
+			/*return;*/
+		/*}*/
 
 		/* Old process will no longer remain current */
 
@@ -79,7 +74,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	}
 
     // check group info
-    struct shedinfo info = get_shedinfo();
+    win_grp = get_shedinfo();
 
 	/* Force context switch to highest priority ready process */
 
