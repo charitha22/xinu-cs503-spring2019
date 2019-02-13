@@ -13,20 +13,31 @@ int get_shedinfo(){
     // set the priority of current process's group to default
     chgprio(proctab[currpid].grp , GPRIO_DEFAULT);
 
-    // traverse the list and update info, ignore null process
-    // and current process in counting
-    curr = firstid(readylist);
-    last = lastid(readylist);
+    // traverse the srtime ready list
+    if(nonempty(readylist_srtime)){
+        curr = firstid(readylist_srtime);
+        last = lastid(readylist_srtime);
 
-    do{
-        if(curr != NULLPROC && curr != currpid){
-            if(proctab[curr].grp == SRTIME) srtime_cnt++;
-            else if(proctab[curr].grp == TSSCHED) tssched_cnt++;
-        }
-        curr = queuetab[curr].qnext;
-    } while(curr != last);
-
+        do{
+            if(curr != NULLPROC && curr != currpid){
+                srtime_cnt++;
+            }
+            curr = queuetab[curr].qnext;
+        } while(curr != last);
+    }
     
+    // traverse the srtime ready list
+    if(nonempty(readylist_tssched)){
+        curr = firstid(readylist_tssched);
+        last = lastid(readylist_tssched);
+
+        do{
+            if(curr != NULLPROC && curr != currpid){
+                tssched_cnt++;
+            }
+            curr = queuetab[curr].qnext;
+        } while(curr != last);
+    }
     /*XDEBUG_KPRINTF("no of srtime = %d\nno of tssched =  %d\n", */
                     /*info.srtime_count, info.tssched_count);*/
     // set new group priorities
@@ -70,7 +81,8 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 		/* Old process will no longer remain current */
 
 		ptold->prstate = PR_READY;
-		insert(currpid, readylist, ptold->prprio);
+		if(ptold->grp == SRTIME) insert(currpid, readylist_srtime, ptold->prprio);
+		else insert(currpid, readylist_tssched, ptold->prprio);
 	}
 
     // check group info
@@ -78,7 +90,9 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 
 	/* Force context switch to highest priority ready process */
 
-	currpid = dequeue(readylist);
+	if(win_grp == SRTIME) currpid = dequeue(readylist_srtime);
+	else currpid = dequeue(readylist_tssched);
+
 	ptnew = &proctab[currpid];
 	ptnew->prstate = PR_CURR;
 	preempt = QUANTUM;		/* Reset time slice for process	*/

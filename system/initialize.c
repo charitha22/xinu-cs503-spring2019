@@ -77,7 +77,7 @@ void	nulluser()
 
 	/* Enable interrupts */
 
-	enable();
+    enable();
 
 	/* Initialize the network stack and start processes */
 
@@ -216,7 +216,11 @@ static	void	sysinit()
 
 	/* Create a ready list for processes */
 
-	readylist = newqueue();
+	/*readylist = newqueue();*/
+    readylist_srtime = newqueue();
+    readylist_tssched = newqueue();
+    XDEBUG_KPRINTF("is srtime r list bad = %d\n", isbadqid(readylist_srtime));
+    XDEBUG_KPRINTF("is tssched r list bad = %d\n", isbadqid(readylist_tssched));
     
     // initilaize the group priorities
     chgprio(SRTIME, GPRIO_DEFAULT);
