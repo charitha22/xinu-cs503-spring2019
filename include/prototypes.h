@@ -9,6 +9,11 @@ extern	int32	arp_alloc(void);
 extern	void	arp_ntoh(struct arppacket *);
 extern	void	arp_hton(struct arppacket *);
 
+// test functions to be called from main.c
+extern void cpubound(int32, int32);
+extern void iobound(int32, int32);
+
+
 // in file chgprio.c
 extern pri16 chgprio(int group, pri16 newprio);
 

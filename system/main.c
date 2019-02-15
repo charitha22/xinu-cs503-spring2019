@@ -5,6 +5,12 @@
 process	main(void)
 {
 
+    /*XDEBUG_KPRINTF("solaris dispatch table\n");*/
+    /*for(int i=0; i<DTABSIZE; i++){*/
+        /*XDEBUG_KPRINTF("%d %d %d\n", */
+            /*tsd_tab[i].ts_quantum, tsd_tab[i].ts_tqexp, tsd_tab[i].ts_slpret);*/
+    /*}*/
+
 	/* Run the Xinu shell */
 
 	recvclr();

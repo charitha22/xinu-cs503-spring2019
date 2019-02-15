@@ -95,6 +95,16 @@ struct procent {		/* Entry in the process table		*/
                         // set this to true; burst is continued
 };
 
+// size of the solaris dispatch table
+#define DTABSIZE 60
+
+// strcut for entries in solaris dispatch table, used by TSS schedular
+struct tsd_ent{
+    int ts_quantum;
+    int ts_tqexp;
+    int ts_slpret;
+};
+
 /* Marker for the top of a process stack (used to help detect overflow)	*/
 #define	STACKMAGIC	0x0A0AAAA9
 
@@ -102,3 +112,6 @@ extern	struct	procent proctab[];
 extern	int32	prcount;	/* Currently active processes		*/
 extern	pid32	currpid;	/* Currently executing process		*/
 extern  pri16   procgprio[]; // priority of each scheduling group
+extern  struct tsd_ent tsd_tab[];   // solaris dispatch table
+
+
