@@ -199,6 +199,10 @@ static	void	sysinit()
 	prptr->prstklen = NULLSTK;
 	prptr->prstkptr = 0;
     prptr->grp = SRTIME;
+    prptr->curr_burst = 0;
+    prptr->exp_burst = 0;
+    prptr->next_exp_burst = 0;
+    prptr->b_continue = FALSE;
 	currpid = NULLPROC;
 	
 	/* Initialize semaphores */
@@ -219,8 +223,8 @@ static	void	sysinit()
 	/*readylist = newqueue();*/
     readylist_srtime = newqueue();
     readylist_tssched = newqueue();
-    XDEBUG_KPRINTF("is srtime r list bad = %d\n", isbadqid(readylist_srtime));
-    XDEBUG_KPRINTF("is tssched r list bad = %d\n", isbadqid(readylist_tssched));
+    /*XDEBUG_KPRINTF("is srtime r list bad = %d\n", isbadqid(readylist_srtime));*/
+    /*XDEBUG_KPRINTF("is tssched r list bad = %d\n", isbadqid(readylist_tssched));*/
     
     // initilaize the group priorities
     chgprio(SRTIME, GPRIO_DEFAULT);

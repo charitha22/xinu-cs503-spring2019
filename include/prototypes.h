@@ -456,6 +456,8 @@ extern	umsg32	recvtime(int32);
 extern	void	resched(void);
 extern	status	resched_cntl(int32);
 extern int get_shedinfo();
+extern void update_burst(struct procent *);
+pid32 select_process(int);
 
 /* in file intutils.S */
 extern	void	restore(intmask);

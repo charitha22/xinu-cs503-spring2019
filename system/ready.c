@@ -24,7 +24,7 @@ status	ready(
 
 	prptr = &proctab[pid];
 	prptr->prstate = PR_READY;
-	if(prptr->grp == SRTIME) insert(pid, readylist_srtime, prptr->prprio);
+	if(prptr->grp == SRTIME) insert(pid, readylist_srtime, MAX_BURST - prptr->next_exp_burst);
 	else insert(pid, readylist_tssched, prptr->prprio);
 	resched();
 

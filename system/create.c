@@ -54,6 +54,12 @@ pid32	create(
     // set the process group of new process
     prptr->grp = group;
 
+    // initialize the bursts
+    prptr->curr_burst = 0;
+    prptr->exp_burst = 0;
+    prptr->next_exp_burst = 0;
+    prptr->b_continue = FALSE;
+
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;
 	prptr->prdesc[1] = CONSOLE;

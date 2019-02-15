@@ -20,7 +20,8 @@
 #define XDEBUG_KPRINTF(...)
 #endif
 
-
+#define ALPHA       0.7
+#define MAX_BURST   2147483647      // max burst value. equal to INT_MAX
 
 /* Maximum number of processes in the system */
 
@@ -86,6 +87,12 @@ struct procent {		/* Entry in the process table		*/
 	bool8	prhasmsg;	/* Nonzero iff msg is valid		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
     int     grp;        // process group
+
+    uint32  curr_burst; // variables for burst time compuations
+    uint32  exp_burst;
+    uint32  next_exp_burst;
+    bool8    b_continue; // if process was blocked by other process
+                        // set this to true; burst is continued
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

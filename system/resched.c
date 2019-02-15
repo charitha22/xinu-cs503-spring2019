@@ -38,9 +38,10 @@ int get_shedinfo(){
             curr = queuetab[curr].qnext;
         } while(curr != last);
     }
+    
     /*XDEBUG_KPRINTF("no of srtime = %d\nno of tssched =  %d\n", */
-                    /*info.srtime_count, info.tssched_count);*/
-    // set new group priorities
+                    /*srtime_cnt, tssched_cnt);*/
+     /*set new group priorities*/
     chgprio(SRTIME, (pri16)getgprio(SRTIME) + srtime_cnt);
     chgprio(TSSCHED, (pri16)getgprio(TSSCHED) + tssched_cnt);
 
@@ -48,7 +49,71 @@ int get_shedinfo(){
     if(getgprio(SRTIME) >= getgprio(TSSCHED)) gwin = SRTIME;
     else gwin = TSSCHED;
 
+    /*XDEBUG_KPRINTF("gwin = %d\n", gwin);*/
+
     return gwin;
+}
+
+void update_burst(struct procent * ptr){
+    uint32 burst;
+    // if previous burst was not inturrpted voluntarily
+    // increment the current burst
+    if(preempt == QUANTUM) burst = QUANTUM;
+    else burst = QUANTUM - preempt;
+    
+    // new formula
+    burst *= 1000;
+   
+    /*XDEBUG_KPRINTF(" burst = %d\n", burst);*/
+    if(ptr->b_continue) ptr->curr_burst += burst;
+    else ptr->curr_burst = burst;
+    
+    // if the process if force to context switch then continue the burst
+    if(preempt == QUANTUM && ptr->prstate == PR_CURR) ptr->b_continue = TRUE;
+    else ptr->b_continue = FALSE;
+
+    // update the old current expected burst
+    ptr->exp_burst = ptr->next_exp_burst;
+
+    // compute the next expected burst
+    // TODO : verify the eq
+    ptr->next_exp_burst = (ptr->curr_burst * 7/10) + (ptr->exp_burst * 3/10);
+
+    // hack
+    /*if(currpid  == NULLPROC) ptr->next_exp_burst = 2500;*/
+    
+    // since the next burst is updated. remove this process
+    // from the ready_list list and re-insert it
+    if(ptr->prstate == PR_READY){
+        getitem(currpid);
+        queuetab[currpid].qnext = EMPTY;
+        queuetab[currpid].qprev = EMPTY;
+        insert(currpid, readylist_srtime, MAX_BURST - ptr->next_exp_burst);
+    }
+
+
+    /*XDEBUG_KPRINTF(" exepected burst = %d process name = %s  burst = %d\n", */
+                /*ptr->next_exp_burst, ptr->prname, burst);*/
+
+
+}
+
+pid32 select_process(int grp){
+    pid32 wpid;
+    
+    // if srtime, get the last key from the srtime ready list
+    if(grp == SRTIME){
+        wpid = dequeue(readylist_srtime);
+    }
+    else{
+        XDEBUG_KPRINTF("ERROR\n");
+    }
+
+
+    /*XDEBUG_KPRINTF("wpid = %d wpro = %s\n" , wpid, proctab[wpid].prname);*/
+
+
+    return wpid;
 }
 
 
@@ -72,6 +137,9 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	/* Point to process table entry for the current (old) process */
 
 	ptold = &proctab[currpid];
+    
+    // if the process if SRTIME update burst time
+    if (ptold->grp == SRTIME) update_burst(ptold);
 
 	if (ptold->prstate == PR_CURR) {  /* Process remains eligible */
 		/*if (ptold->prprio > firstkey(readylist)) {*/
@@ -81,7 +149,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 		/* Old process will no longer remain current */
 
 		ptold->prstate = PR_READY;
-		if(ptold->grp == SRTIME) insert(currpid, readylist_srtime, ptold->prprio);
+		if(ptold->grp == SRTIME) insert(currpid, readylist_srtime, MAX_BURST - ptold->next_exp_burst);
 		else insert(currpid, readylist_tssched, ptold->prprio);
 	}
 
@@ -90,9 +158,11 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 
 	/* Force context switch to highest priority ready process */
 
-	if(win_grp == SRTIME) currpid = dequeue(readylist_srtime);
-	else currpid = dequeue(readylist_tssched);
-
+	if(win_grp == SRTIME) currpid = select_process(SRTIME);
+	else currpid = select_process(TSSCHED);
+    
+    /*XDEBUG_KPRINTF("selected process = %s\n", proctab[currpid].prname);*/
+    
 	ptnew = &proctab[currpid];
 	ptnew->prstate = PR_CURR;
 	preempt = QUANTUM;		/* Reset time slice for process	*/
