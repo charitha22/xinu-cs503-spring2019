@@ -42,6 +42,9 @@ pid32	create(
 	/* Initialize process table entry for new process */
 	prptr->prstate = PR_SUSP;	/* Initial state is suspended	*/
 	prptr->prprio = priority;
+    // hack to protect accesses to tsd_tab later
+    if(priority > 59) prptr->prprio = 0;
+
 	prptr->prstkbase = (char *)saddr;
 	prptr->prstklen = ssize;
 	prptr->prname[PNMLEN-1] = NULLCH;
@@ -59,6 +62,9 @@ pid32	create(
     prptr->exp_burst = 0;
     prptr->next_exp_burst = 0;
     prptr->b_continue = FALSE;
+
+    // set tquantum to default
+    prptr->tquantum = QUANTUM;
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;

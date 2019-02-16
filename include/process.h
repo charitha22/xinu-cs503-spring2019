@@ -93,6 +93,7 @@ struct procent {		/* Entry in the process table		*/
     uint32  next_exp_burst;
     bool8    b_continue; // if process was blocked by other process
                         // set this to true; burst is continued
+    uint32  tquantum;   // time quantum for TSSCHED processes
 };
 
 // size of the solaris dispatch table
@@ -100,9 +101,9 @@ struct procent {		/* Entry in the process table		*/
 
 // strcut for entries in solaris dispatch table, used by TSS schedular
 struct tsd_ent{
-    int ts_quantum;
-    int ts_tqexp;
-    int ts_slpret;
+    uint32 ts_quantum;
+    uint32 ts_tqexp;
+    uint32 ts_slpret;
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/
