@@ -19,6 +19,13 @@ syscall	suspend(
 		restore(mask);
 		return SYSERR;
 	}
+    // root process is always allowed
+    // other process is only allowed if pid is owned by them
+    if ( proctab[currpid].uid != 0 && proctab[currpid].uid 
+            != proctab[pid].uid){
+        restore(mask);
+        return SYSERR;
+    }
 
 	/* Only suspend a process that is current or ready */
 

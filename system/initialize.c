@@ -272,6 +272,7 @@ static	void	sysinit()
     prptr->exp_burst = 0;
     prptr->next_exp_burst = 0;
     prptr->b_continue = FALSE;
+    prptr->uid = 0;             // null process is the ROOT of all processes
 	currpid = NULLPROC;
 	
 	/* Initialize semaphores */

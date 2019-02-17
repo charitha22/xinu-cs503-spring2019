@@ -94,6 +94,7 @@ struct procent {		/* Entry in the process table		*/
     bool8    b_continue; // if process was blocked by other process
                         // set this to true; burst is continued
     uint32  tquantum;   // time quantum for TSSCHED processes
+    int32  uid;         // user id
 };
 
 // size of the solaris dispatch table

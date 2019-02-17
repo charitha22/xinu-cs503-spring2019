@@ -66,6 +66,9 @@ pid32	create(
     // set tquantum to default
     prptr->tquantum = QUANTUM;
 
+    // set the owner. owner is the currently runnig process's uid
+    prptr->uid = proctab[currpid].uid;
+
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;
 	prptr->prdesc[1] = CONSOLE;

@@ -20,6 +20,9 @@ extern pri16 chgprio(int group, pri16 newprio);
 // in file getgprio.c
 extern syscall getgprio(int group);
 
+// in file setuid.c
+extern syscall setuid(int newuid);
+
 /* in file hello.c */
 extern syscall hello(void);
 

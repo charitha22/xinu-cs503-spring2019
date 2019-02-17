@@ -21,6 +21,14 @@ syscall	kill(
 		return SYSERR;
 	}
 
+    // root process is always allowed
+    // other process is only allowed if pid is owned by them
+    if ( proctab[currpid].uid != 0 && proctab[currpid].uid 
+            != proctab[pid].uid){
+        restore(mask);
+        return SYSERR;
+    }
+
 	if (--prcount <= 1) {		/* Last user process completes	*/
 		xdone();
 	}
