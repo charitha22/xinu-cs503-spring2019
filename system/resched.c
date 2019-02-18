@@ -73,7 +73,7 @@ void update_burst(struct procent * ptr){
     else ptr->b_continue = FALSE;
 
     // update the old current expected burst
-    ptr->exp_burst = ptr->next_exp_burst;
+    if(! ptr->b_continue) ptr->exp_burst = ptr->next_exp_burst;
 
     // compute the next expected burst
     // TODO : verify the eq
