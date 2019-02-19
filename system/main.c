@@ -9,18 +9,40 @@ process	main(void)
     int32 i;
     intmask mask;
     //create the processes after deffer rescheduling
-    mask = disable();
+    // TEST 1 : all cpubound
+    /*resched_cntl(DEFER_START);*/
+    
+    /*for(i=0; i<6; i++){*/
+        /*resume(create((void*)cpubound, 8195, TSSCHED, 1, "test", 2, 100, 100));*/
+    /*}*/
+    /*resched_cntl(DEFER_STOP);*/
+
+
+    // TEST 2 : all iobound
+    /*resched_cntl(DEFER_START);*/
+    
+    /*for(i=0; i<6; i++){*/
+        /*resume(create((void*)iobound, 8195, TSSCHED, 1, "test", 2, 100, 100));*/
+    /*}*/
+    /*resched_cntl(DEFER_STOP);*/
+
+
+
+    // TEST 3 : half & half
     resched_cntl(DEFER_START);
     
-    for(i=0; i<6; i++){
+    for(i=0; i<3; i++){
         resume(create((void*)cpubound, 8195, TSSCHED, 1, "test", 2, 100, 100));
     }
+    
+    for(i=0; i<3; i++){
+        resume(create((void*)iobound, 8195, TSSCHED, 1, "test", 2, 100, 100));
+    }
+ 
     resched_cntl(DEFER_STOP);
 
-    restore(mask);
 
-    
-    
+
     /*XDEBUG_KPRINTF("solaris dispatch table\n");*/
     /*for(int i=0; i<DTABSIZE; i++){*/
         /*XDEBUG_KPRINTF("%d %d %d\n", */
@@ -29,8 +51,8 @@ process	main(void)
 
 	/* Run the Xinu shell */
 
-	recvclr();
-	pid32 pid = create(shell, 8195, SRTIME, 50, "shell", 1, CONSOLE);
+    recvclr();
+    pid32 pid = create(shell, 8195, SRTIME, 50, "shell", 1, CONSOLE);
     XTEST_KPRINTF("Spawning new shell with PID = %d...\n", pid);
     resume(pid);
 

@@ -5,7 +5,7 @@
 #define TSSCHED 1
 
 #define XTEST 1
-#define XDEBUG 1    /* set this to 0 when submitting */
+#define XDEBUG 0    /* set this to 0 when submitting */
 
 /* For grading */
 #if XTEST

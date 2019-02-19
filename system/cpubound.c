@@ -7,6 +7,7 @@ void cpubound(int32 LOOP1, int32 LOOP2){
     int32 d = 4;
     int32 e = 5;
     int32 i, j;
+    intmask mask;
     byte storage[32];
     for (i=0; i<LOOP1; i++) {
         for (j=0; j<LOOP2; j++) {
@@ -33,8 +34,10 @@ void cpubound(int32 LOOP1, int32 LOOP2){
         }
         // Using kprintf print the pid followed the outer loop count i,
         // the process's priority and remaining time slice (preempt).
+        mask = disable();
         XTEST_KPRINTF("pid = %d, outer count = %d, priority = %d, preempt = %d\n",
                 currpid, i, proctab[currpid].prprio, preempt);
+        restore(mask);
     }
-    XTEST_KPRINTF("DONE!\n");
+    XDEBUG_KPRINTF("DONE!\n");
 }
