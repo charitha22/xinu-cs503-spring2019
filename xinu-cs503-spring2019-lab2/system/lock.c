@@ -33,7 +33,7 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
         
         lckptr->lck_owner_state = type;
         // set the lock mapping. used by releaseall.
-        lockmap[ldes][currpid] = TRUE;
+        lockmap[ldes][currpid] = lckptr->lck_ctime;
     }
     // if lock is currently acquired by a READER
     else if(lckptr->lck_owner_state == READ) {
@@ -53,7 +53,7 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
             }
             // lock is acquired by the READER
             else{
-                lockmap[ldes][currpid] = TRUE;
+                lockmap[ldes][currpid] = lckptr->lck_ctime;
             }
         }
         // if type is WRITE go to write wait list
@@ -82,8 +82,9 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
     
     
     // if the lock is deleted this process never aquired the 
-    // lock returning due to ldelete ready call
-    if(lockmap[ldes][currpid] == FALSE){
+    // lock. It's just returning due to ready call in ldelete
+    if(lockmap[ldes][currpid] != lckptr->lck_ctime){
+        lockmap[ldes][currpid] = 0;
         restore(mask);
         return DELETED;
     }

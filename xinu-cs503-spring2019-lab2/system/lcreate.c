@@ -34,6 +34,7 @@ local int32 newlock(void){
             nextlock = 0;
         if(locktab[lock].lckstate == L_FREE){
             locktab[lock].lckstate = L_USED;
+            locktab[lock].lck_ctime = clktime;
             return lock;
         }
     }

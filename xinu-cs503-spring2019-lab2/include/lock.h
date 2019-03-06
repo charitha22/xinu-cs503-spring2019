@@ -20,13 +20,16 @@ struct	lockent {
     qid16   lck_rqueue;     // write processes waiting on this
     qid16   lck_wqueue;     // read processes waiting on this
     //qid16   lck_queue;
+    uint32  lck_ctime;          // lock creation time
 };
 
 /* Lab 3 lock table */
 
 extern struct lockent locktab[NLOCKS];
 
-// array to check if lock l is helpd by process p
-extern bool8 lockmap[NLOCKS][NPROC]; 
+// when some process p acquire lock l
+// lockmap[l][p] is set to creation time of l
+// this will help us to verify the locks later
+extern uint32 lockmap[NLOCKS][NPROC]; 
 
 #define	isbadlock(x)	((int32)(x) < 0 || (x) >= NLOCKS)

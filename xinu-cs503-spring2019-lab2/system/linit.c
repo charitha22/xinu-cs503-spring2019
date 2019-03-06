@@ -5,7 +5,7 @@
 
 // declare any global variables here
 struct  lockent locktab[NLOCKS];    // lock table
-bool8   lockmap[NLOCKS][NPROC];
+uint32  lockmap[NLOCKS][NPROC];
 
 
 void linit(void) {
@@ -23,12 +23,13 @@ void linit(void) {
         lockptr->lck_owner_state = UNLOCKED;
         lockptr->lck_rqueue = newqueue();
         lockptr->lck_wqueue = newqueue();
+        lockptr->lck_ctime = 0;
     }
 
     // initialize the lock mapping
     for(i=0; i<NLOCKS; i++){
         for(j=0; j<NPROC; j++){
-            lockmap[i][j] = FALSE;
+            lockmap[i][j] = 0;
         }
     }
 

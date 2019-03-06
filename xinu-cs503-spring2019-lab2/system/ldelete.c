@@ -25,23 +25,19 @@ syscall ldelete(
     }
 
     lockptr->lckstate = L_FREE;
+    lockptr->lck_ctime = 0; // reset the creation time
 
     resched_cntl(DEFER_START);
     
     // free readers
     while(nonempty(lockptr->lck_rqueue)){
         reader = dequeue(lockptr->lck_rqueue);
-        // update lockmap
-        lockmap[ldes][reader] = FALSE;
         ready(reader);
     }
 
     // free writers
     while(nonempty(lockptr->lck_wqueue)){
         writer = dequeue(lockptr->lck_wqueue);
-        // update lock map
-        lockmap[ldes][writer] = FALSE;
-
         ready(writer);
 
     }
