@@ -12,8 +12,9 @@
 #ifndef NQENT
 
 /* Lab 3 modification: Add headers and footers for the lock queues */
-
-#define NQENT	(NPROC + 4 + NSEM*2 + NLOCKS*2) 
+// NOTE : for each lock keep 2 queues to store the WRITEs and READs 
+// seperately
+#define NQENT	(NPROC + 4 + NSEM*2 + NLOCKS*4) 
 #endif
 
 #define	EMPTY	(-1)		/* Null value for qnext or qprev index	*/
