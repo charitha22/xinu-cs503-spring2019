@@ -44,7 +44,7 @@ static syscall release (int32 ldes){
         return SYSERR;
     }
     
-    // if this lock is help by this process lockmap
+    // if this lock is held by this process lockmap
     // must have the creation time of this lock
     if(lockmap[ldes][currpid] != lckptr->lck_ctime){
         return SYSERR;
@@ -57,7 +57,7 @@ static syscall release (int32 ldes){
         if(firstkey(lckptr->lck_wqueue) >= firstkey(lckptr->lck_rqueue)){
             writer = dequeue(lckptr->lck_wqueue);
             // update lock tab
-            lockmap[ldes][writer] = lckptr->lck_ctime;
+            /*lockmap[ldes][writer] = lckptr->lck_ctime;*/
             lckptr->lck_owner_state = WRITE;
             ready(writer);
         }
@@ -70,7 +70,7 @@ static syscall release (int32 ldes){
             lckptr->lck_owner_state = READ;
             while(firstkey(lckptr->lck_rqueue) >= firstkey(lckptr->lck_wqueue)){
                 reader = dequeue(lckptr->lck_rqueue);
-                lockmap[ldes][reader] = lckptr->lck_ctime;
+                /*lockmap[ldes][reader] = lckptr->lck_ctime;*/
                 ready(reader);
             }
             resched_cntl(DEFER_STOP);
@@ -80,7 +80,7 @@ static syscall release (int32 ldes){
     // if only write processes are in wait queue release one
     else if(nonempty(lckptr->lck_wqueue)){
         writer = dequeue(lckptr->lck_wqueue);
-        lockmap[ldes][writer] = lckptr->lck_ctime;
+        /*lockmap[ldes][writer] = lckptr->lck_ctime;*/
         
         lckptr->lck_owner_state = WRITE;
         ready(writer);
@@ -94,7 +94,7 @@ static syscall release (int32 ldes){
         lckptr->lck_owner_state = READ;
         while(nonempty(lckptr->lck_rqueue)){
             reader = dequeue(lckptr->lck_rqueue);
-            lockmap[ldes][reader] = lckptr->lck_ctime;
+            /*lockmap[ldes][reader] = lckptr->lck_ctime;*/
             ready(reader);
         }
         resched_cntl(DEFER_STOP);

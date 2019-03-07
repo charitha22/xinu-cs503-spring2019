@@ -19,6 +19,12 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
         return SYSERR;
     }
 
+    // check lock type is valid
+    if( !(type == READ || type == WRITE)){
+        restore(mask);
+        return SYSERR;
+    }
+
     lckptr = &locktab[ldes];
     if(lckptr->lckstate == L_FREE){
         restore(mask);
@@ -27,13 +33,13 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
 
     /*kprintf("lock owner state = %d\n", lckptr->lck_owner_state);*/
     
+    // set the lock mapping. used by releaseall.
+    lockmap[ldes][currpid] = lckptr->lck_ctime;
 
     // if lock if free set the lock type and continue
     if(lckptr->lck_owner_state == UNLOCKED){
         
         lckptr->lck_owner_state = type;
-        // set the lock mapping. used by releaseall.
-        lockmap[ldes][currpid] = lckptr->lck_ctime;
     }
     // if lock is currently acquired by a READER
     else if(lckptr->lck_owner_state == READ) {
@@ -52,9 +58,9 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
                 resched();
             }
             // lock is acquired by the READER
-            else{
-                lockmap[ldes][currpid] = lckptr->lck_ctime;
-            }
+            /*else{*/
+                /*lockmap[ldes][currpid] = lckptr->lck_ctime;*/
+            /*}*/
         }
         // if type is WRITE go to write wait list
         else{
@@ -80,7 +86,8 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
         resched();
     }
     
-    
+    /*kprintf("lockmap = %d\n lck creation time = %d\n", lockmap[ldes][currpid], lckptr->lck_ctime);*/
+
     // if the lock is deleted this process never aquired the 
     // lock. It's just returning due to ready call in ldelete
     if(lockmap[ldes][currpid] != lckptr->lck_ctime){
