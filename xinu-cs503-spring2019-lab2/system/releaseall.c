@@ -4,6 +4,9 @@
 
 /* Lab 2: Complete this function */
 local syscall release (int32 ldes);
+local void reset_owner_prio(int32 ldes);
+/*local pri16 max(pri16 p1, pri16 p2);*/
+local bool8 has_multiple_readers(int32 ldes);
 
 syscall releaseall (int32 numlocks, ...) {
 
@@ -49,6 +52,17 @@ static syscall release (int32 ldes){
     if(lockmap[ldes][currpid] != lckptr->lck_ctime){
         return SYSERR;
     }
+
+    // record the release in lockmap
+    lockmap[ldes][currpid] = 0;
+    // update the priority of this process
+    reset_owner_prio( ldes );
+
+    // check if multiple readers have acquired this lock
+    // if true do not release any processes
+    if(lckptr->lck_owner_state == READ && has_multiple_readers(ldes)){
+        return OK;
+    }
   
     // check the highest priority waiting process and
     // ready them
@@ -83,6 +97,7 @@ static syscall release (int32 ldes){
         /*lockmap[ldes][writer] = lckptr->lck_ctime;*/
         
         lckptr->lck_owner_state = WRITE;
+        /*kprintf("releasing writer %d \n", writer);*/
         ready(writer);
     }
     // if only read processes are in wait queue release all
@@ -104,10 +119,57 @@ static syscall release (int32 ldes){
     else{
         // mark lock as UNLOCKED
         lckptr->lck_owner_state = UNLOCKED;
-        lockmap[ldes][currpid] = 0;
+        /*lockmap[ldes][currpid] = 0;*/
     }
 
 
 
     return OK;
 }
+
+pri16 max(pri16 p1, pri16 p2){
+    if(p1 > p2) return p1;
+    return p2;
+}
+
+local void reset_owner_prio(int32 ldes){
+    int32 i;
+    pri16 maxprio;
+    
+    maxprio = getprio(currpid);
+    // iterate over all locks held by this process
+    for(i=0; i<NLOCKS; i++){
+        if( (lockmap[i][currpid] != 0)
+            && (ldes != i)){
+            maxprio = max(maxprio, firstkey(locktab[i].lck_rqueue));
+            maxprio = max(maxprio, firstkey(locktab[i].lck_wqueue));
+        }
+    }
+
+    // now reset the priority
+    if(maxprio == proctab[currpid].prprio){
+        chprio(currpid, maxprio);
+    }
+    else{
+        chinhprio(currpid, maxprio);
+    }
+}
+
+
+local bool8 has_multiple_readers(int32 ldes){
+    int32 i;
+
+    for(i=0; i<NPROC; i++){
+        if( (i!=currpid) && 
+            (lockmap[ldes][i] !=0) &&
+            (proctab[i].prstate != PR_WAIT)){
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+
+
+
+

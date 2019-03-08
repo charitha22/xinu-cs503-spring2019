@@ -21,6 +21,7 @@ extern	status	bufinit(void);
 /* in file chprio.c */
 
 extern	pri16	chprio(pid32, pri16);
+extern  pri16   chinhprio(pid32, pri16);
 
 /* in file clkupdate.S */
 
@@ -651,6 +652,7 @@ extern	int32 lcreate(void);
 extern	syscall	ldelete(int32);
 extern	syscall lock(int32, int32, int32);
 extern	syscall	releaseall(int32, ...);
+extern  pri16 max(pri16, pri16);
 
 /* NETWORK BYTE ORDER CONVERSION NOT NEEDED ON A BIG-ENDIAN COMPUTER */
 #define	htons(x)   ( ( 0xff & ((x)>>8) ) | ( (0xff & (x)) << 8 ) )

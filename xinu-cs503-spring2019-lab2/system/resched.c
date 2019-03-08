@@ -23,24 +23,26 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 		return;
 	}
 
+
 	/* Point to process table entry for the current (old) process */
 
 	ptold = &proctab[currpid];
-
+    
 	if (ptold->prstate == PR_CURR) {  /* Process remains eligible */
-		if (ptold->prprio > firstkey(readylist)) {
+		if (getprio(currpid) > firstkey(readylist)) {
 			return;
 		}
 
 		/* Old process will no longer remain current */
 
 		ptold->prstate = PR_READY;
-		insert(currpid, readylist, ptold->prprio);
+		insert(currpid, readylist, getprio(currpid));
 	}
 
 	/* Force context switch to highest priority ready process */
 
 	currpid = dequeue(readylist);
+    /*kprintf("sheduling %s pid : %d prio : %d\n", proctab[currpid].prname, currpid, getprio(currpid));*/
 	ptnew = &proctab[currpid];
 	ptnew->prstate = PR_CURR;
 	preempt = QUANTUM;		/* Reset time slice for process	*/

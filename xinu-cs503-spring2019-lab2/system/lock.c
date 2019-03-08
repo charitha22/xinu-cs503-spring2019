@@ -2,6 +2,7 @@
 #include <xinu.h>
 
 /* Lab 2: Complete this function */
+local void update_lockowner_prio(int32 ldes0);
 
 syscall lock(int32 ldes, int32 type, int32 lpriority) {
 
@@ -55,6 +56,7 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
                 prptr = &proctab[currpid];
                 prptr->prstate = PR_WAIT;
                 insert(currpid, lckptr->lck_rqueue, lpriority);
+                update_lockowner_prio(ldes); // update the priority of lock holders
                 resched();
             }
             // lock is acquired by the READER
@@ -67,6 +69,7 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
             prptr = &proctab[currpid];
             prptr->prstate = PR_WAIT;
             insert(currpid, lckptr->lck_wqueue, lpriority);
+            update_lockowner_prio(ldes); // update the priority of lock holders
             resched();
         }
     }
@@ -83,6 +86,8 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
         else {
             insert(currpid, lckptr->lck_wqueue, lpriority);
         }
+
+        update_lockowner_prio(ldes); // update the priority of lock holders
         resched();
     }
     
@@ -99,3 +104,21 @@ syscall lock(int32 ldes, int32 type, int32 lpriority) {
     restore(mask);
 	return OK;
 }
+
+
+local void update_lockowner_prio(int32 ldes){
+    int32 i; 
+    // check all the process having this lock or waiting on this 
+    // lock
+    for(i=0; i<NPROC; i++){
+        if((lockmap[ldes][i] != 0) 
+            && (getprio(i) < getprio(currpid))){
+            
+            /*kprintf("changing lock owner pid : %d prio %d\n", i, getprio(currpid));*/
+            chinhprio(i, getprio(currpid));
+             
+        }
+    }
+}
+
+

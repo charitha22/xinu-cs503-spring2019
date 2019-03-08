@@ -140,6 +140,7 @@ static	void	sysinit()
 	prptr = &proctab[NULLPROC];
 	prptr->prstate = PR_CURR;
 	prptr->prprio = 0;
+    prptr->prinh = 0;   // null process's inherited priority is 0
 	strncpy(prptr->prname, "prnull", 7);
 	prptr->prstkbase = getstk(NULLSTK);
 	prptr->prstklen = NULLSTK;
