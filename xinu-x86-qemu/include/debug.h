@@ -6,3 +6,5 @@
 void hexdump(void *buffer, uint32 length, bool8 text);
 void debugbreak(void);
 void debugret(void);
+
+void dump_cregs();

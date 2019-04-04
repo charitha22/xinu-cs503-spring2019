@@ -78,3 +78,22 @@ void	hexdump(
         fprintf(stdout, "\n");
     }
 }
+
+
+
+void dump_cregs(){
+
+  uint32 cr0, cr3;
+  __asm__ __volatile__ (
+    "mov %%cr0, %%eax\n\t"
+    "mov %%eax, %0\n\t"
+    "mov %%cr3, %%eax\n\t"
+    "mov %%eax, %1\n\t"
+    :"=m" (cr0), "=m" (cr3)
+    : 
+    :"%eax"
+    );
+    
+    kprintf("cr0 : 0x%x\n", cr0);
+    kprintf("cr3 : 0x%x\n", cr3);
+}

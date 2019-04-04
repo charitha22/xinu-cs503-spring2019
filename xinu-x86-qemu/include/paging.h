@@ -56,4 +56,9 @@ typedef struct {
 
 extern int32	currpolicy;
 
+#define MFRAMES     3072    // meta data frames
+#define FR_FREE     1       // frame free
+#define FR_TAKEN    0       // frame taken
+extern uint8 mframetab[MFRAMES]; // keeps track of free frames in metadata
+
 #endif // __PAGING_H_

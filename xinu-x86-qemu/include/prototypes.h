@@ -705,7 +705,7 @@ extern	void	xdone(void);
 /* in file yield.c */
 extern	syscall	yield(void);
 
-extern 	void 	setpagedirectory(unsigned long);
+extern 	void 	setpagedirectory(uint32);
 extern 	void 	pageintdispat(void);
 extern 	int	allocateframe(void);
 extern  pd_t*	allocatepd(void);
@@ -713,6 +713,7 @@ extern	pt_t*	allocatept(void);
 extern	void	iptableinit(void);
 extern	void	bsmapinit(void);
 extern	void	globalpagetablesinit(void);
+
 extern	void	printprdir(char* addr);
 extern	int	count_bs(void);
 extern 	void	insert_bsmap(pid32 procid, uint32 vpage, int32 npages, bsd_t bs);
@@ -738,6 +739,10 @@ extern int allocateframeFREE();
 extern int allocateframe();
 extern pd_t *allocatepd();
 extern pt_t *allocatept();
+
+// added
+extern uint32 allocmetaframe();
+extern void setidentitymap(uint32 pd, uint32 mframe, void* saddr); 
 
 /* NETWORK BYTE ORDER CONVERSION NOT NEEDED ON A BIG-ENDIAN COMPUTER */
 #define	htons(x)   ( ( 0xff & ((x)>>8) ) | ( (0xff & (x)) << 8 ) )
