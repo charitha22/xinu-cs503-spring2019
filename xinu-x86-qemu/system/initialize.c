@@ -209,39 +209,21 @@ static void initialize_paging()
 {
 	/* LAB3 TODO */
     uint32 i;
-    uint32 pd,
-           pt0, pt1, pt2, pt3, pt_device;
-    // initilaize the metadata fream table
+    uint32* page_dir;
+
+    // initilaize the metadata frame table
     for(i=0; i<MFRAMES; i++) mframetab[i] = FR_FREE;
-   
-    // allocate a frame for PD of null process
-    pd = allocmetaframe();
-    // setup the page directory
-    setpagedirectory(pd);
 
-    // allocate for global tables
-    pt0 = allocmetaframe();
-    pt1 = allocmetaframe();
-    pt2 = allocmetaframe();
-    pt3 = allocmetaframe();
-    pt_device = allocmetaframe();
-    
-    // setup identity maps for these page tables
-    setidentitymap(pd, pt0,(void*) 0x0); 
-    setidentitymap(pd, pt1, (void*) 0x400000); 
-    setidentitymap(pd, pt2, (void*) 0x800000); 
-    setidentitymap(pd, pt3, (void*) 0xc00000); 
-    setidentitymap(pd, pt_device, (void*) 0x90000000); 
-
+    page_dir = globalpagetablesinit();
     // enable paging
-    enable_paging(pd);
+    enable_paging(page_dir);
 
 	return;
 }
 
-void enable_paging(uint32 pd){
+void enable_paging(uint32* pd){
    uint32 cr0 = 0x13 | 0x80000000;
-   uint32 cr3 = (0x400000 + pd*NBPG);
+   uint32 cr3 = (uint32)pd;
    __asm__ __volatile__ (
     "mov %1, %%eax\n\t"
     "mov %%eax, %%cr3\n\t"

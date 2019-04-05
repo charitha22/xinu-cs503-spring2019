@@ -5,7 +5,7 @@
 
 /* Structure for a page directory entry */
 
-typedef struct {
+typedef struct pd_t_ {
 	unsigned int pd_pres	: 1;		/* page table present?		*/
 	unsigned int pd_write : 1;		/* page is writable?		*/
 	unsigned int pd_user	: 1;		/* is use level protection?	*/
@@ -21,7 +21,7 @@ typedef struct {
 
 /* Structure for a page table entry */
 
-typedef struct {
+typedef struct pt_t_{
 	unsigned int pt_pres	: 1;		/* page is present?		*/
 	unsigned int pt_write : 1;		/* page is writable?		*/
 	unsigned int pt_user	: 1;		/* is use level protection?	*/
@@ -56,9 +56,13 @@ typedef struct {
 
 extern int32	currpolicy;
 
+#define META_ADDR   0x00400000      // starting addr of meta region
+#define saddrofmeta(mframe) (META_ADDR+mframe*NBPG)
+
 #define MFRAMES     3072    // meta data frames
 #define FR_FREE     1       // frame free
 #define FR_TAKEN    0       // frame taken
+#define MFRAME_ERR  3073    // all meta frames taken
 extern uint8 mframetab[MFRAMES]; // keeps track of free frames in metadata
 
 #endif // __PAGING_H_
