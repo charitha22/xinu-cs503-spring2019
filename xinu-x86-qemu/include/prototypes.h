@@ -743,6 +743,10 @@ extern int allocateframe();
 // added
 extern uint32 allocmetaframe();
 extern void identitymappt(uint32*, char*);
+// in file fpisr.S
+extern void pfisr(void);                // page fault ISR 
+extern void pfhandler(void);    // page fault handler
+
 
 /* NETWORK BYTE ORDER CONVERSION NOT NEEDED ON A BIG-ENDIAN COMPUTER */
 #define	htons(x)   ( ( 0xff & ((x)>>8) ) | ( (0xff & (x)) << 8 ) )

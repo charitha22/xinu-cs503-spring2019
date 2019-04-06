@@ -215,6 +215,10 @@ static void initialize_paging()
     for(i=0; i<MFRAMES; i++) mframetab[i] = FR_FREE;
 
     page_dir = globalpagetablesinit();
+    
+    // set isr
+    set_evec(14, (uint32)pfisr);
+
     // enable paging
     enable_paging(page_dir);
 

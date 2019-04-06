@@ -37,6 +37,9 @@ process	main(void)
     kprintf("paging is not enabled");
     return SYSERR;
   }
+
+  // trigger a page fault
+  uint32 a = *(uint32*)0x01000000;
   /* Initialize the page server */
   /* DO NOT REMOVE OR COMMENT THIS CALL */
   psinit();
