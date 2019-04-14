@@ -44,6 +44,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	preempt = QUANTUM;		/* Reset time slice for process	*/
 
   // Lab3. TODO: change the page directories as a process is ctx out
+    setcr3(ptnew->pagedir);
 
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);
 

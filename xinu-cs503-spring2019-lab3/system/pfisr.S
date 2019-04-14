@@ -5,8 +5,8 @@
 pfisr:
     cli                 # disable interrupts
     pushal              # save all regs
-    call pfhandler      # call handler
+    call    pfhandler      # call handler
     popal               # restore regs
-    popl                # remove error code
+    add     $4, %esp              # remove error code
     sti                 # restore interrupts
     iret

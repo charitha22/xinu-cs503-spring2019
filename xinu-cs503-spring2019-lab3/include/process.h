@@ -63,6 +63,11 @@ struct procent {		/* Entry in the process table		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
 
   /* Lab3 TODO: add more structures as required for vheap etc. */
+    uint32* pagedir;       // address of the page directory 
+    bool8   hasvmem;       // this has a vitual heap or not
+    bsd_t   bstore;        // backing store for this process
+    struct memblk vmemlist; // struct for maintaining free vmem list
+    bool8   isvmeminit;       // vmeminit called or not
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

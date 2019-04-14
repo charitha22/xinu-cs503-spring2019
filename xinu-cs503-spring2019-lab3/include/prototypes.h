@@ -708,8 +708,8 @@ extern	syscall	yield(void);
 extern 	void 	setpagedirectory(uint32*, uint32*);
 extern 	void 	pageintdispat(void);
 extern 	int	allocateframe(void);
-extern  uint32*	allocatepd(void);
-extern	uint32*	allocatept(void);
+extern  uint32*	allocatepd(pid32);
+extern	uint32*	allocatept(pid32);
 extern	void	iptableinit(void);
 extern	void	bsmapinit(void);
 extern	uint32*	globalpagetablesinit(void);
@@ -741,11 +741,24 @@ extern int allocateframe();
 //extern pt_t *allocatept();
 
 // added
-extern uint32 allocmetaframe();
+extern uint32 allocmetaframe(pid32, uint8);
 extern void identitymappt(uint32*, char*);
+extern uint32* createpagedir(pid32);
+extern void setcr3(uint32* pd);
+extern void printpagedir(uint32*);
+extern void incrementrefcount(uint32*);
+extern void decrementrefcount(uint32*);
+
+// memory init for vmem
+extern void vmeminit(struct memblk*);
+
 // in file fpisr.S
 extern void pfisr(void);                // page fault ISR 
 extern void pfhandler(void);    // page fault handler
+
+// for backing store map
+extern bsoffsetinfo findposbs(pid32, char*); // given a pid and virtual address find the backing store and offset within the
+                                             // backing store
 
 
 /* NETWORK BYTE ORDER CONVERSION NOT NEEDED ON A BIG-ENDIAN COMPUTER */

@@ -210,11 +210,30 @@ static void initialize_paging()
 	/* LAB3 TODO */
     uint32 i;
     uint32* page_dir;
+    struct procent* prptr;
 
     // initilaize the metadata frame table
-    for(i=0; i<MFRAMES; i++) mframetab[i] = FR_FREE;
+    for(i=0; i<MFRAMES; i++) {
+        mframetab[i].status = FR_FREE;
+        mframetab[i].pid = -1;
+        mframetab[i].is_data = TRUE;
+        mframetab[i].ref_count = 0;
+    } 
+
+    // initialize the FIFO queue
+    fifohead = 0;
+    fifotail = 0;
+
+    for(i=0; i<MFRAMES; i++){
+        fifoqueue[i] = -1;
+    }
 
     page_dir = globalpagetablesinit();
+
+    // set the null processes page dir
+    prptr = &proctab[currpid];
+    prptr->pagedir = page_dir;
+    prptr->hasvmem = FALSE;
     
     // set isr
     set_evec(14, (uint32)pfisr);
@@ -228,16 +247,28 @@ static void initialize_paging()
 void enable_paging(uint32* pd){
    uint32 cr0 = 0x13 | 0x80000000;
    uint32 cr3 = (uint32)pd;
+   /*kprintf("setting cr3 : %x for null process\n", cr3);*/
    __asm__ __volatile__ (
     "mov %1, %%eax\n\t"
     "mov %%eax, %%cr3\n\t"
     "mov %0, %%eax\n\t"
     "mov %%eax, %%cr0\n\t"
-
-    :"=m" (cr0), "=m" (cr3)
     :
+    :"m" (cr0), "m" (cr3)
     :"%eax"
    );
+}
+
+void setcr3(uint32* pd){
+    uint32 cr3 = (uint32)pd;
+    /*kprintf("setting cr3 : %x for pid : %d\n", cr3, currpid);*/
+    __asm__ __volatile__ (
+        "mov %0, %%eax\n\t"
+        "mov %%eax, %%cr3\n\t"
+        :
+        :"m" (cr3)
+        :"%eax"
+    );
 }
 
 int32	stop(char *s)

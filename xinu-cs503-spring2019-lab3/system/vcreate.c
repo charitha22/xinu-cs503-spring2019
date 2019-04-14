@@ -28,6 +28,7 @@ pid32	vcreate(
 	int32		i;
 	uint32		*a;		/* Points to list of args	*/
 	uint32		*saddr;		/* Stack address		*/
+    bsd_t       bstore_id;
 
 	mask = disable();
 	if (ssize < MINSTK)
@@ -56,6 +57,32 @@ pid32	vcreate(
 	prptr->prsem = -1;
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
+
+    // set the page dir
+    prptr->pagedir = createpagedir(pid);
+    prptr->hasvmem = TRUE;
+    
+    // memory is not initialized yet
+    /*vmeminit(&(prptr->vmemlist));*/
+    prptr->isvmeminit = FALSE;
+    // set up the backing store
+    // TODO : this case is not handled yet
+    if(hsize > MAX_PAGES_PER_BS) {
+        kprintf(" vheap size if more than one backing store\n");
+        restore(mask);
+        return SYSERR;
+    }
+    
+    // TODO : what if no backing store is available
+    if( (bstore_id = allocate_bs(hsize)) == SYSERR){
+        restore(mask);
+        return SYSERR;
+    }
+
+
+    // update the bakcing store map
+    bsmaptab[bstore_id].pid = pid;
+    bsmaptab[bstore_id].n = 0;
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;

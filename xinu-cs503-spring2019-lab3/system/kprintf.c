@@ -161,13 +161,13 @@ extern	void	_doprnt(char *, va_list ap, int (*)(int));
  */
 syscall kprintf(char *fmt, ...)
 {
-    intmask mask = disable();
+    /*intmask mask = disable();*/
 	va_list ap;
 
 	va_start(ap, fmt);
 	_doprnt(fmt, ap, (int (*)(int))kputc);
 	va_end(ap);
 
-    restore(mask);
+    /*restore(mask);*/
 	return OK;
 }
