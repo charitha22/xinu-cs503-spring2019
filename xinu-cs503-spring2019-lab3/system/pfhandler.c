@@ -51,8 +51,9 @@ void pfhandler(){
     if((*pd_entry & 1) == 0){
         // get a new frame for page table
         new_pt = allocatept(currpid);
-        
-
+        // call hook for a page table create
+        hook_ptable_create((uint32)new_pt >> 12);   
+       
         // set the pd entry for the new page table 
         // and mark page table present
         * pd_entry |= (((uint32)new_pt) | 1 );
@@ -83,7 +84,9 @@ void pfhandler(){
         panic("backing store read unsuccessful");
     }
 
-
+    
+    // call hook for page fault
+    hook_pfault(currpid, (void*)cr2, vp, (uint32)freemframeaddr >> 12);
 
     /*panic("page fault");*/
     restore(mask);
