@@ -17,6 +17,7 @@ void pfhandler(){
 
     mask = disable();
     
+    /*kprintf("\nCALL : pfhandler\n");*/
     // update the number of page faults
     numpfaults ++;
 
@@ -44,15 +45,21 @@ void pfhandler(){
     p = cr2 >> 22;
     q = (cr2 >> 12) & 0x3ff;
 
+    /*kprintf("page dir = 0x%x\n", (uint32)pd);*/
+    /*kprintf("p = %d, q = %d\n", p , q);*/
+
     // get the address of the page table
     pd_entry = (uint32*)(pd + p);
 
     // check if the p'th page table exists
     if((*pd_entry & 1) == 0){
+        /*kprintf("page table does not exist\n");*/
         // get a new frame for page table
         new_pt = allocatept(currpid);
         // call hook for a page table create
         hook_ptable_create((uint32)new_pt >> 12);   
+
+        /*kprintf("meta frame selected for page table = %d\n", (uint32)new_pt >> 12);*/
        
         // set the pd entry for the new page table 
         // and mark page table present
@@ -68,12 +75,33 @@ void pfhandler(){
 
     // obtain a free frame for data
     freemframe = allocmetaframe(currpid, TRUE);
-    freemframeaddr = (char*)saddrofmeta(freemframe);
     
     if(freemframe == MFRAME_ERR){
-        panic("free frames not availeble, this case not handled");
+        /*panic("free frames not availeble, this case not handled");*/
+        if(currpolicy == FIFO){
+            freemframe = allocateframeFIFO();             
+            fifoenqueue(freemframe);
+        }
+        else{
+            panic("CGA policy is not implemented");
+        }
+    }
+    else{
+        // free frame is availble update the replacement data structures
+        if(currpolicy == FIFO){
+            fifoenqueue(freemframe);
+        }
+        else{
+            // GCA is not implemented
+            panic("CGA policy is not implemented");
+        }
     }
 
+    /*kprintf("free mframe id selected for data = %d\n", freemframe);*/
+    // set the virtual page number in the inverted page table
+    mframetab[freemframe].vp = vp;
+
+    freemframeaddr = (char*)saddrofmeta(freemframe);
     // update the page table for the new page
     // and mark page present
     uint32* addrofpt = (*pd_entry & 0xfffff000);
@@ -83,6 +111,11 @@ void pfhandler(){
     if(read_bs(freemframeaddr, bsoffset.bs, bsoffset.offset) == SYSERR){
         panic("backing store read unsuccessful");
     }
+
+    /*kprintf("dirtybit before  write = 0x%x\n", *(addrofpt+q) & 0x40);*/
+    /**(uint32*)cr2 = 1;*/
+    /*kprintf("dirtybit after  write = 0x%x\n", *(addrofpt+q) & 0x40);*/
+
 
     
     // call hook for page fault

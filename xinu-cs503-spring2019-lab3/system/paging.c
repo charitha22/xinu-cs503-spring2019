@@ -11,6 +11,11 @@ uint32 fifotail;
 // counter for total page faults
 uint32 numpfaults;
 
+static inline void invlpg(void* m)
+{
+    asm volatile ( "invlpg (%0)" : : "b"(m) : "memory" );
+}
+
 // allocates a frame and returns the frame number
 // TODO : handle errors
 uint32 allocmetaframe(pid32 pid, uint8 is_data){
@@ -42,7 +47,13 @@ uint32* allocatept(pid32 pid){
     
     mframe = allocmetaframe(pid, FALSE);
     if(mframe == MFRAME_ERR){
-        panic("free frames not available for page table");
+        /*panic("free frames not available for page table");*/
+        if(currpolicy == FIFO){
+            mframe = allocateframeFIFO();
+        }
+        else{
+            panic("CGA policy is not implemented");
+        }
     }
     pt_saddr = (uint32*)saddrofmeta(mframe);
     
@@ -62,7 +73,14 @@ uint32* allocatepd(pid32 pid){
     /*kprintf("allocating page dir for pid %d\n", pid);*/
     mframe = allocmetaframe(pid, FALSE);
     if(mframe == MFRAME_ERR){
-        panic("free frames not available for page directory");
+        /*panic("free frames not available for page directory");*/
+        if(currpolicy == FIFO){
+            mframe = allocateframeFIFO();
+        }
+        else{
+            panic("CGA policy is not implemented");
+        }
+
     }
 
 
@@ -193,7 +211,7 @@ void decrementrefcount(uint32* faddr){
         return;
     }
 
-    mframenum = ((uint32)faddr - META_ADDR)/NBPG;
+    mframenum = ((uint32)faddr - META_ADDR) >> 12;
 
     mframetab[mframenum].ref_count--;
  
@@ -233,6 +251,91 @@ bsoffsetinfo findposbs(pid32 pid, char* vaddr){
 }
 
 
+uint32   allocateframeFIFO(void){
+    uint32 selected;
+    uint32  a;          // first virtual address of the selected frame
+    uint32  p, q;       // pt offset and page offset
+    uint32 pid ;        // pid of the process owning selected
+    uint32 *pd, *pd_entry;   // page dir and page table
+    uint32 dirty_bit;   //dirty bit for the page
+    bsoffsetinfo bsoffset;
+
+    /*kprintf("\nCALL : allocateframeFIFO\n");*/
+    selected = fifodequeue();
+    
+    /*kprintf("selected = %d\n", selected);*/
+    /*kprintf("fifohead = %d\n", fifohead);*/
+    /*kprintf("fofotail = %d\n", fifotail);*/
+    if(selected < 0 || selected > MFRAMES){
+        panic("Invalid frame selected for replacement");
+    }
+
+    a = (mframetab[selected].vp) * NBPG;
+    p = a >> 22;
+    q = (a >> 12) & 0x3ff;
+    
+    pid = mframetab[selected].pid;
+
+    // what is the page dir of pid
+    pd = proctab[pid].pagedir;
+
+
+    // get the p'th page table
+    pd_entry = (uint32*)(pd + p);
+
+    // mark q'th page as not present, but still writable
+    uint32* addrofpt = (*pd_entry & 0xfffff000);
+    dirty_bit = (*(addrofpt+q) & 0x40) >> 6;
+    /*kprintf("dirty bit = %d\n", dirty_bit);*/
+    *(addrofpt+q) = 0x2;
+
+    // if removed frame belong to current process
+    // invalidate TLB
+    // TODO : need to use invlpg 
+    if( pid == currpid){
+        /*__asm__ __volatile__(*/
+            /*"mov %%cr3, %%eax\n\t"*/
+            /*"mov %%eax, %%cr3\n\t"*/
+            /*:*/
+            /*:*/
+            /*: "%eax"*/
+            /*"invlpg (%0)\n\t"*/
+            /*:*/
+            /*: "b" (a)*/
+            /*: "memory"*/
+        /*);*/
+        invlpg((void*)a);
+    }
+
+    // decrement the ref count for the frame holding
+    // the page table for this address
+    decrementrefcount(*pd_entry);
+    
+    // check if the dirty bit was set
+    if(dirty_bit == 1){
+        /*kprintf("page is dirty");*/
+
+        // find this page in backing store
+        bsoffset = findposbs(pid, (char*)a);
+        
+        if(bsoffset.bs == -1){
+            // something is wrong
+            panic("can not find the backing store for this page");
+
+        }
+
+        // write the page back
+        if(write_bs((char*)saddrofmeta(selected), bsoffset.bs, bsoffset.offset) == SYSERR){
+            panic("backing store write unsuccessful");
+        }
+        
+    }
+    
+    return selected;
+
+
+}
+
 // Simple queue structure
 // TODO : no error checks 
 void fifoenqueue(uint32 mframeid){
@@ -250,9 +353,6 @@ uint32 fifodequeue(){
 
     return result;
 }
-
-
-
 
 
 

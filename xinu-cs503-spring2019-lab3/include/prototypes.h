@@ -733,7 +733,7 @@ extern int decreaserefcount(int32 framenum);
 extern int invalidateframe(int32 framenum);
 extern int updatefrnextFIFO(int32 framenum);
 
-extern int allocateframeFIFO();
+//extern int allocateframeFIFO();
 extern int allocateframeGCA();
 extern int allocateframeFREE();
 extern int allocateframe();
@@ -748,6 +748,7 @@ extern void setcr3(uint32* pd);
 extern void printpagedir(uint32*);
 extern void incrementrefcount(uint32*);
 extern void decrementrefcount(uint32*);
+extern uint32   allocateframeFIFO(void);
 
 // memory init for vmem
 extern void vmeminit(struct memblk*);

@@ -218,6 +218,7 @@ static void initialize_paging()
         mframetab[i].pid = -1;
         mframetab[i].is_data = TRUE;
         mframetab[i].ref_count = 0;
+        mframetab[i].vp = -1;
     } 
 
     // initialize the FIFO queue

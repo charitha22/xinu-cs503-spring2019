@@ -41,6 +41,7 @@ typedef struct mframeinfo_ {
     pid32       pid;            // pid of the process this frame belong to
     uint8       is_data;        // is this frame can be replaced
     uint32      ref_count;      // reference count for this frame
+    int32       vp;             // virtual page number for data frames
 } mframeinfo;
 
 
@@ -64,7 +65,7 @@ typedef struct bsoffsetinfo_ {
 #define FRAME0		1024	/* zero-th frame		*/
 
 #ifndef NFRAMES
-#define NFRAMES		3072	/* number of frames		*/
+#define NFRAMES		3072 /* number of frames		*/
 #endif
 
 #define MAP_SHARED 1
@@ -101,6 +102,8 @@ extern bsmapinfo bsmaptab[MAX_BS_ENTRIES];
 extern uint32   fifoqueue[MFRAMES];
 extern uint32   fifohead;
 extern uint32   fifotail;
+extern void fifoenqueue(uint32);
+extern uint32 fifodequeue();
 
 
 // keeps track number  of page faults
