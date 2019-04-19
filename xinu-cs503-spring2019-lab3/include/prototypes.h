@@ -717,7 +717,6 @@ extern	uint32*	globalpagetablesinit(void);
 extern	void	printprdir(char* addr);
 extern	int	count_bs(void);
 extern 	void	insert_bsmap(pid32 procid, uint32 vpage, int32 npages, bsd_t bs);
-extern	int	remove_bsmap(pid32 procid);
 extern	int	retrieve_bsmap(pid32 procid, uint32 vpage, int*); 
 extern	void	printbsmap(void);
 extern	unsigned long read_faultaddr(void);
@@ -726,8 +725,6 @@ extern void freept(pt_t* frameaddr);
 extern void freepd(pd_t* frameaddr);
 extern int freeframesFIFO(pid32 procpid);
 extern int freeframesGCA(pid32 procpid); 
-extern int freeframes(pid32 procpid);
-extern int freeframe(int32 framenum);
 
 extern int decreaserefcount(int32 framenum);
 extern int invalidateframe(int32 framenum);
@@ -761,6 +758,10 @@ extern void pfhandler(void);    // page fault handler
 extern bsoffsetinfo findposbs(pid32, char*); // given a pid and virtual address find the backing store and offset within the
                                              // backing store
 
+//process destruction
+extern void freeframes(pid32);
+extern void freeframe(uint32);
+extern void	remove_bsmap(pid32);
 
 /* NETWORK BYTE ORDER CONVERSION NOT NEEDED ON A BIG-ENDIAN COMPUTER */
 #define	htons(x)   ( ( 0xff & ((x)>>8) ) | ( (0xff & (x)) << 8 ) )

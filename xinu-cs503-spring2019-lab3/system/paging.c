@@ -250,6 +250,40 @@ bsoffsetinfo findposbs(pid32 pid, char* vaddr){
 
 }
 
+void freeframes(pid32 pid){
+    // iterate over all mframes and free frames belong
+    // to this process
+    for(uint32 i=0; i<MFRAMES; i++){
+        if(mframetab[i].pid == pid){
+            freeframe(i);
+        }
+    }
+}
+
+void freeframe(uint32 mframe){
+    // reste the frame to original status
+    mframetab[mframe].status = FR_FREE;
+    mframetab[mframe].pid = -1;
+    mframetab[mframe].is_data = TRUE;
+    mframetab[mframe].ref_count = 0;
+    mframetab[mframe].vp = -1;
+
+}
+
+void remove_bsmap(pid32 pid){
+    // iterate over the backing store map
+    // and free the entries
+    for(uint32 i=0; i<MAX_BS_ENTRIES; i++){
+        if(bsmaptab[i].pid == pid){
+            // deallocate the store
+            deallocate_bs(i);
+            bsmaptab[i].pid = -1;
+            bsmaptab[i].n = 0;
+        }
+    }
+}
+
+
 
 uint32   allocateframeFIFO(void){
     uint32 selected;

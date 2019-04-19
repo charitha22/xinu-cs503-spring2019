@@ -229,6 +229,12 @@ static void initialize_paging()
         fifoqueue[i] = -1;
     }
 
+    // initialize the backing store map
+    for(i=0; i<MAX_BS_ENTRIES; i++){
+        bsmaptab[i].pid = -1;
+        bsmaptab[i].n = 0;
+    }
+
     page_dir = globalpagetablesinit();
 
     // set the null processes page dir

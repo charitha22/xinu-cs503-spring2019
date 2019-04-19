@@ -34,7 +34,7 @@ process	main(void)
       by checking the values from the control register.
   */
   if(!verify_cregs()) {
-    kprintf("paging is not enabled");
+    kprintf("Paging is not enabled");
     return SYSERR;
   }
 
@@ -46,5 +46,6 @@ process	main(void)
 
   page_policy_test();
 
+  kprintf("No of page faults %d\n", get_faults());
   return OK;
 }

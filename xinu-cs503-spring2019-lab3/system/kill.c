@@ -31,7 +31,12 @@ syscall	kill(
 		close(prptr->prdesc[i]);
 	}
 
-  // Lab3 TODO. Free frames as a process gets killed.
+    // Lab3 TODO. Free frames as a process gets killed.
+    // deallocate the backing store for this process
+    // and reset the backing store map
+    remove_bsmap(pid);    
+    // free the frames taken by this process
+    freeframes(pid);   
 
 	freestk(prptr->prstkbase, prptr->prstklen);
 
